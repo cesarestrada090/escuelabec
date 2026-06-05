@@ -1,0 +1,246 @@
+<div class="pipeline-page">
+  <div class="page-header">
+    <div>
+      <h1>Pipeline</h1>
+      <p class="text-muted">Arrastra los leads entre etapas del funnel</p>
+    </div>
+    <div class="pipeline-filters">
+      <div class="filter-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text"
+               class="filter-input"
+               placeholder="Buscar por nombre o email..."
+               [(ngModel)]="searchQuery"
+               (input)="onSearchInput()" />
+      </div>
+      <select class="filter-select" [(ngModel)]="filterSource" (change)="onFilterChange()">
+        <option value="">Todas las fuentes</option>
+        @for (src of sources; track src.sourceId) {
+          <option [value]="src.name">{{ src.name }}</option>
+        }
+      </select>
+      @if (hasFilters) {
+        <button class="btn-clear-filters" (click)="clearFilters()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Limpiar
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  } @else {
+    <div class="kanban-board">
+      @for (stage of stages; track stage.stageId) {
+        <div class="kanban-column"
+             (dragover)="onDragOver($event)"
+             (drop)="onDrop(stage.stageId)">
+
+          <div class="column-header" [style.border-top-color]="stage.color"
+               (dragover)="onDragOver($event)"
+               (drop)="onDrop(stage.stageId)">
+            <span class="column-title">{{ stage.name }}</span>
+            <span class="column-count" [style.background]="stage.color + '20'" [style.color]="stage.color">
+              {{ getTotal(stage.stageId) }}
+            </span>
+          </div>
+
+          <div class="column-body"
+               (dragover)="onDragOver($event)"
+               (drop)="onDrop(stage.stageId)">
+
+            @if (isLoadingStage(stage.stageId)) {
+              <div class="column-loading">
+                <div class="spinner-border spinner-border-sm text-secondary"></div>
+              </div>
+            } @else {
+              @for (lead of getLeads(stage.stageId); track lead.leadId) {
+                <div class="lead-card"
+                     draggable="true"
+                     (dragstart)="onDragStart(lead, $event)"
+                     (click)="openDrawer(lead, $event)">
+                  <div class="lead-name">{{ lead.firstName }} {{ lead.lastName }}</div>
+                  <div class="lead-email">{{ lead.email }}</div>
+                  @if (lead.phone) {
+                    <div class="lead-phone">{{ lead.phone }}</div>
+                  }
+                  @if (lead.source) {
+                    <span class="lead-source">{{ lead.source }}</span>
+                  }
+                </div>
+              }
+
+              @if (getLeads(stage.stageId).length === 0) {
+                <div class="empty-column">Sin leads</div>
+              }
+            }
+          </div>
+
+          <!-- Paginación por columna -->
+          @if (getTotalPages(stage.stageId) > 1) {
+            <div class="column-pagination">
+              <button class="page-btn"
+                      [disabled]="getCurrentPage(stage.stageId) === 0"
+                      (click)="goToPage(stage.stageId, getCurrentPage(stage.stageId) - 1)">
+                ‹
+              </button>
+              <span class="page-info">
+                {{ getCurrentPage(stage.stageId) + 1 }} / {{ getTotalPages(stage.stageId) }}
+              </span>
+              <button class="page-btn"
+                      [disabled]="getCurrentPage(stage.stageId) + 1 >= getTotalPages(stage.stageId)"
+                      (click)="goToPage(stage.stageId, getCurrentPage(stage.stageId) + 1)">
+                ›
+              </button>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Drawer overlay -->
+@if (drawerOpen) {
+  <div class="drawer-overlay" (click)="closeDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <h5>{{ form.firstName }} {{ form.lastName }}</h5>
+        <span class="drawer-stage-badge" [style.background]="selectedLead?.stageColor + '20'" [style.color]="selectedLead?.stageColor">
+          {{ selectedLead?.stageName }}
+        </span>
+      </div>
+      <button class="drawer-close" (click)="closeDrawer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="drawer-tab" [class.active]="drawerTab === 'data'" (click)="drawerTab = 'data'">Datos</button>
+      <button class="drawer-tab" [class.active]="drawerTab === 'history'" (click)="openHistoryTab()">Historial</button>
+    </div>
+
+    <div class="drawer-body">
+      @if (drawerTab === 'data') {
+      <div class="form-row">
+        <div class="field-group">
+          <label>Nombre</label>
+          <input class="form-control" [(ngModel)]="form.firstName" name="drawerFirstName" />
+        </div>
+        <div class="field-group">
+          <label>Apellido</label>
+          <input class="form-control" [(ngModel)]="form.lastName" name="drawerLastName" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Email</label>
+        <input class="form-control" type="email" [(ngModel)]="form.email" name="drawerEmail" />
+      </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Teléfono</label>
+          <input class="form-control" [(ngModel)]="form.phone" name="drawerPhone" placeholder="+51 999 999 999" />
+        </div>
+        <div class="field-group">
+          <label>Fuente</label>
+          <select class="form-select" [(ngModel)]="form.source" name="drawerSource">
+            <option value="">Sin fuente</option>
+            @for (src of sources; track src.sourceId) {
+              <option [value]="src.name">{{ src.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Etapa del funnel</label>
+          <select class="form-select" [(ngModel)]="form.funnelStageId" name="drawerStage">
+            @for (stage of stages; track stage.stageId) {
+              <option [value]="stage.stageId">{{ stage.position }}. {{ stage.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Asignado a</label>
+          <select class="form-select" [(ngModel)]="form.assignedTo" name="drawerAssigned">
+            <option value="">Sin asignar</option>
+            @for (v of vendors; track v.userId) {
+              <option [value]="v.userId">{{ v.firstName }} {{ v.lastName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Notas</label>
+        <textarea class="form-control" [(ngModel)]="form.notes" name="drawerNotes" rows="3" placeholder="Observaciones sobre este lead..."></textarea>
+      </div>
+
+      <div class="drawer-meta">
+        <span>Creado {{ selectedLead?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        @if (selectedLead?.updatedAt) {
+          <span>Actualizado {{ selectedLead?.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        }
+      </div>
+      } @else {
+        <!-- Historial -->
+        @if (loadingHistory) {
+          <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
+        } @else if (history.length === 0) {
+          <div class="history-empty">Sin movimientos registrados</div>
+        } @else {
+          <div class="history-timeline">
+            @for (h of history; track h.id) {
+              <div class="history-item">
+                <div class="history-dot" [style.background]="h.toStageColor || '#6B7280'"></div>
+                <div class="history-content">
+                  <div class="history-move">
+                    @if (h.fromStageName) {
+                      <span class="history-stage from" [style.color]="h.fromStageColor">{{ h.fromStageName }}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    } @else {
+                      <span class="history-created">Creado en</span>
+                    }
+                    <span class="history-stage to" [style.color]="h.toStageColor">{{ h.toStageName }}</span>
+                  </div>
+                  <div class="history-meta">
+                    {{ h.changedAt | date:'dd/MM/yyyy HH:mm' }}
+                    @if (h.changedByName) { · {{ h.changedByName }} }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn btn-danger-outline" (click)="deleteDrawer()" [disabled]="deleting || saving">
+        @if (deleting) { <span class="spinner-border spinner-border-sm me-1"></span> }
+        Eliminar
+      </button>
+      <div class="drawer-footer-right">
+        <button class="btn btn-secondary" (click)="closeDrawer()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveDrawer()" [disabled]="saving || deleting">
+          @if (saving) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}

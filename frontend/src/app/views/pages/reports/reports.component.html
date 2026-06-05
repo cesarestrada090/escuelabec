@@ -1,0 +1,109 @@
+<div class="reports-page">
+  <div class="page-header">
+    <div>
+      <h1>Reportes</h1>
+      <p class="text-muted mb-0">Análisis y métricas del CRM</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  } @else {
+
+    <!-- Row 1: monthly + source -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Leads por mes</span>
+          <span class="chart-sub">Últimos 6 meses — nuevos vs convertidos</span>
+        </div>
+        <div #monthChart></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Leads por fuente</span>
+          <select class="form-select form-select-sm ms-auto" style="width:auto"
+                  [(ngModel)]="selectedMonth" (ngModelChange)="onMonthChange()">
+            <option value="">Todos los meses</option>
+            @for (m of availableMonths; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+        </div>
+        <div #sourceChart></div>
+      </div>
+    </div>
+
+    <!-- Row 2: vendors table -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Rendimiento por vendedor</span>
+        <span class="section-sub">Total de leads asignados y tasa de conversión</span>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="fw-bold text-dark">Vendedor</th>
+            <th class="fw-bold text-dark text-end">Leads asignados</th>
+            <th class="fw-bold text-dark text-end">Convertidos</th>
+            <th class="fw-bold text-dark" style="min-width:180px">Tasa de conversión</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of vendors; track v.vendorName) {
+            <tr>
+              <td class="fw-500">{{ v.vendorName }}</td>
+              <td class="text-end">{{ v.total }}</td>
+              <td class="text-end text-success fw-500">{{ v.converted }}</td>
+              <td>
+                <div class="conv-row">
+                  <div class="conv-bar-wrap">
+                    <div class="conv-bar-fill" [style.width.%]="convBar(v.conversionRate)"></div>
+                  </div>
+                  <span class="conv-pct">{{ v.conversionRate }}%</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Row 3: source detail table -->
+    <div class="section-card mt-3">
+      <div class="section-header">
+        <span class="section-title">Detalle por fuente</span>
+        @if (selectedMonth) {
+          <span class="section-sub">{{ selectedMonthLabel }}</span>
+        }
+      </div>
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="fw-bold text-dark">Fuente</th>
+            <th class="fw-bold text-dark text-end">Leads</th>
+            <th class="fw-bold text-dark" style="min-width:200px">Distribución</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of sourceData; track s.source) {
+            <tr>
+              <td class="fw-500">{{ s.source }}</td>
+              <td class="text-end">{{ s.count }}</td>
+              <td>
+                <div class="conv-row">
+                  <div class="conv-bar-wrap">
+                    <div class="conv-bar-fill blue" [style.width.%]="s.pct"></div>
+                  </div>
+                  <span class="conv-pct">{{ s.pct }}%</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  }
+</div>

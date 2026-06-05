@@ -1,0 +1,165 @@
+<div class="events-page">
+  <div class="page-header">
+    <div>
+      <h1>Actividades</h1>
+      <p class="text-muted mb-0">{{ totalElements }} actividades en total</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Nueva actividad</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar mb-3">
+    <select class="form-select form-select-sm" [(ngModel)]="filterType" (ngModelChange)="onFilterChange()">
+      <option value="">Todos los tipos</option>
+      @for (t of eventTypes; track t.value) {
+        <option [value]="t.value">{{ t.label }}</option>
+      }
+    </select>
+    <select class="form-select form-select-sm" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+      <option value="">Todos los estados</option>
+      <option value="PENDING">Pendiente</option>
+      <option value="DONE">Hecho</option>
+      <option value="CANCELLED">Cancelado</option>
+    </select>
+  </div>
+
+  <div class="table-card">
+    @if (loading) {
+      <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+    } @else if (events.length === 0) {
+      <div class="empty-state">No hay actividades registradas.</div>
+    } @else {
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th class="fw-bold text-dark">Tipo</th>
+            <th class="fw-bold text-dark">Lead</th>
+            <th class="fw-bold text-dark">Título</th>
+            <th class="fw-bold text-dark">Fecha</th>
+            <th class="fw-bold text-dark">Estado</th>
+            <th class="fw-bold text-dark" style="width:80px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ev of events; track ev.eventId) {
+            <tr>
+              <td>
+                <span class="type-chip type-{{ ev.eventType.toLowerCase() }}">
+                  <span class="type-icon">
+                    @switch (ev.eventType) {
+                      @case ('CALL')    { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> }
+                      @case ('EMAIL')   { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> }
+                      @case ('MEETING') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> }
+                      @case ('TASK')    { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> }
+                      @default          { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+                    }
+                  </span>
+                  {{ typeLabel(ev.eventType) }}
+                </span>
+              </td>
+              <td class="fw-500">{{ ev.leadName || '—' }}</td>
+              <td>{{ ev.title }}</td>
+              <td class="text-muted-sm">{{ ev.eventDate ? (ev.eventDate | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+              <td>
+                <span class="status-chip status-{{ ev.status.toLowerCase() }}">
+                  {{ ev.status === 'PENDING' ? 'Pendiente' : ev.status === 'DONE' ? 'Hecho' : 'Cancelado' }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn" (click)="openEdit(ev)" title="Editar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="act-btn danger" (click)="delete(ev.eventId)" title="Eliminar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (totalPages > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-info">Mostrando {{ currentPage * pageSize + 1 }}–{{ endRow }} de {{ totalElements }}</div>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="goToPage(currentPage - 1)">‹</button>
+              </li>
+              @for (p of pages; track p) {
+                <li class="page-item" [class.active]="p === currentPage">
+                  <button class="page-link" (click)="goToPage(p)">{{ p + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="goToPage(currentPage + 1)">›</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Modal crear/editar -->
+@if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-dialog-custom" (click)="$event.stopPropagation()">
+      <div class="modal-header-custom">
+        <h5>{{ editingId ? 'Editar actividad' : 'Nueva actividad' }}</h5>
+        <button class="btn-close-custom" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body-custom">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Lead *</label>
+            <select class="form-select" [(ngModel)]="form.leadId">
+              <option value="">Seleccionar lead...</option>
+              @for (l of leads; track l.leadId) {
+                <option [value]="l.leadId">{{ l.firstName }} {{ l.lastName }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" [(ngModel)]="form.eventType">
+              @for (t of eventTypes; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="form.status">
+              <option value="PENDING">Pendiente</option>
+              <option value="DONE">Hecho</option>
+              <option value="CANCELLED">Cancelado</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Título *</label>
+            <input class="form-control" [(ngModel)]="form.title" placeholder="Ej: Llamada de seguimiento" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Fecha</label>
+            <input class="form-control" type="datetime-local" [(ngModel)]="form.eventDate" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" [(ngModel)]="form.description" rows="3" placeholder="Detalles..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+          @if (saving) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}

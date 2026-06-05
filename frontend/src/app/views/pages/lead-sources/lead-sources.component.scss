@@ -1,0 +1,70 @@
+.sources-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    h1 { font-size: 1.75rem; font-weight: 700; margin: 0; color: #212529; }
+  }
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6C757D;
+}
+
+.fw-500 { font-weight: 500; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog-custom {
+  background: #fff;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #DEE2E6;
+  h5 { margin: 0; font-weight: 700; }
+}
+
+.btn-close-custom {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #6C757D;
+}
+
+.modal-body-custom { padding: 1.5rem; }
+
+.modal-footer-custom {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #DEE2E6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

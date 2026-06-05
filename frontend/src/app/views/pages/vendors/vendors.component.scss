@@ -1,0 +1,130 @@
+.vendors-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    h1 { font-size: 1.75rem; font-weight: 700; margin: 0; color: #212529; }
+  }
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.vendor-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.vendor-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.vendor-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.text-muted-sm { color: #6C757D; font-size: 0.875rem; }
+
+.role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.375rem;
+  justify-content: flex-end;
+}
+
+.btn-action {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover { background: #F3F4F6; color: #111827; border-color: #D1D5DB; }
+}
+
+.btn-action-danger {
+  &:hover { background: #FEF2F2; color: #EF4444; border-color: #FCA5A5; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6C757D;
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog-custom {
+  background: #fff;
+  border-radius: 12px;
+  width: 480px;
+  max-width: 95vw;
+}
+
+.modal-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #F3F4F6;
+  h5 { margin: 0; font-weight: 700; }
+}
+
+.btn-close-custom {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #6C757D;
+}
+
+.modal-body-custom { padding: 1.5rem; }
+
+.modal-footer-custom {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #F3F4F6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

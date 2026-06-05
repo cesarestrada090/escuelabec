@@ -1,0 +1,101 @@
+<aside class="sidebar" [class.collapsed]="!isOpen">
+
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    @if (isOpen) {
+      <div class="logo-lockup">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#1A73E8"/>
+            <path d="M2 17l10 5 10-5" stroke="#1A73E8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M2 12l10 5 10-5" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">Escuela BEC</span>
+          <span class="logo-sub">CRM</span>
+        </div>
+      </div>
+    } @else {
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#1A73E8"/>
+          <path d="M2 17l10 5 10-5" stroke="#1A73E8" stroke-width="2" stroke-linecap="round"/>
+          <path d="M2 12l10 5 10-5" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    }
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav">
+    @if (isOpen) {
+      <span class="nav-group-label">Principal</span>
+    }
+
+    @for (item of menuMain; track item.route) {
+      <a class="nav-item"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [title]="!isOpen ? item.label : ''">
+        <span class="nav-icon" [innerHTML]="item.icon"></span>
+        @if (isOpen) {
+          <span class="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+
+    @if (isOpen) {
+      <span class="nav-group-label" style="margin-top:1rem">Análisis</span>
+    } @else {
+      <div class="nav-divider"></div>
+    }
+
+    @for (item of menuAnalytics; track item.route) {
+      <a class="nav-item"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [title]="!isOpen ? item.label : ''">
+        <span class="nav-icon" [innerHTML]="item.icon"></span>
+        @if (isOpen) {
+          <span class="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+
+    @if (isOpen) {
+      <span class="nav-group-label" style="margin-top:1rem">Configuración</span>
+    } @else {
+      <div class="nav-divider"></div>
+    }
+
+    @for (item of menuConfig; track item.route) {
+      <a class="nav-item"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [title]="!isOpen ? item.label : ''">
+        <span class="nav-icon" [innerHTML]="item.icon"></span>
+        @if (isOpen) {
+          <span class="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Footer / user -->
+  <div class="sidebar-footer">
+    @if (user) {
+      <div class="user-block" [class.mini]="!isOpen">
+        <div class="user-avatar">{{ user.firstName[0] }}{{ user.lastName[0] }}</div>
+        @if (isOpen) {
+          <div class="user-info">
+            <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+            <div class="user-role">{{ user.role }}</div>
+          </div>
+          <div class="user-status"></div>
+        }
+      </div>
+    }
+  </div>
+
+</aside>

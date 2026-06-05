@@ -1,0 +1,381 @@
+<div class="leads-page">
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Leads</h1>
+      <p class="text-muted">{{ totalElements }} leads en total</p>
+    </div>
+    <button class="btn btn-primary" (click)="openModal()">+ Nuevo Lead</button>
+  </div>
+
+  <div class="search-bar mb-3">
+    <input type="text" class="form-control"
+           placeholder="Buscar por nombre o email..."
+           [(ngModel)]="searchQuery"
+           (input)="onSearchInput()" />
+  </div>
+
+  <div class="table-card">
+    @if (loading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+      </div>
+    } @else if (leads.length === 0) {
+      <div class="empty-state">
+        <p>No hay leads registrados. ¡Crea el primero!</p>
+      </div>
+    } @else {
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th class="fw-bold text-dark">Nombre</th>
+            <th class="fw-bold text-dark">Email</th>
+            <th class="fw-bold text-dark">Teléfono</th>
+            <th class="fw-bold text-dark">Fuente</th>
+            <th class="fw-bold text-dark">Etapa</th>
+            <th class="fw-bold text-dark">Estado</th>
+            <th class="fw-bold text-dark">Creado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (lead of leads; track lead.leadId) {
+            <tr class="lead-row" (click)="openDrawer(lead)">
+              <td class="fw-500">{{ lead.firstName }} {{ lead.lastName }}</td>
+              <td class="text-muted-sm">{{ lead.email }}</td>
+              <td class="text-muted-sm">{{ lead.phone || '—' }}</td>
+              <td>{{ lead.source || '—' }}</td>
+              <td>
+                <span class="stage-badge" [style.background]="lead.stageColor + '20'" [style.color]="lead.stageColor">
+                  {{ lead.stageName }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge status-{{ lead.status.toLowerCase() }}">
+                  {{ lead.status }}
+                </span>
+              </td>
+              <td class="text-muted-sm">{{ lead.createdAt | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (totalPages > 1) {
+        <div class="pagination-bar">
+          <div class="pagination-info">
+            Mostrando {{ currentPage * pageSize + 1 }}–{{ endRow }} de {{ totalElements }}
+          </div>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="goToPage(currentPage - 1)">‹</button>
+              </li>
+              @if (pages[0] > 0) {
+                <li class="page-item"><button class="page-link" (click)="goToPage(0)">1</button></li>
+                @if (pages[0] > 1) { <li class="page-item disabled"><span class="page-link">…</span></li> }
+              }
+              @for (p of pages; track p) {
+                <li class="page-item" [class.active]="p === currentPage">
+                  <button class="page-link" (click)="goToPage(p)">{{ p + 1 }}</button>
+                </li>
+              }
+              @if (pages[pages.length - 1] < totalPages - 1) {
+                @if (pages[pages.length - 1] < totalPages - 2) { <li class="page-item disabled"><span class="page-link">…</span></li> }
+                <li class="page-item"><button class="page-link" (click)="goToPage(totalPages - 1)">{{ totalPages }}</button></li>
+              }
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="goToPage(currentPage + 1)">›</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Modal crear -->
+@if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-dialog-custom" (click)="$event.stopPropagation()">
+      <div class="modal-header-custom">
+        <h5>Nuevo Lead</h5>
+        <button class="btn-close-custom" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body-custom">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Nombre *</label>
+            <input class="form-control" name="firstName" [(ngModel)]="createForm.firstName" placeholder="Juan" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">Apellido *</label>
+            <input class="form-control" name="lastName" [(ngModel)]="createForm.lastName" placeholder="García" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email *</label>
+            <input class="form-control" name="email" type="email" [(ngModel)]="createForm.email" placeholder="juan&#64;email.com" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" name="phone" [(ngModel)]="createForm.phone" placeholder="+51 999 999 999" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">Fuente</label>
+            <select class="form-select" [(ngModel)]="createForm.source">
+              <option value="">Seleccionar...</option>
+            @for (src of sources; track src.sourceId) {
+                <option [value]="src.name">{{ src.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Etapa del funnel</label>
+            <select class="form-select" [(ngModel)]="createForm.funnelStageId">
+              @for (stage of stages; track stage.stageId) {
+                <option [value]="stage.stageId">{{ stage.position }}. {{ stage.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Notas</label>
+            <textarea class="form-control" [(ngModel)]="createForm.notes" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+          @if (saving) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Drawer editar -->
+@if (drawerOpen) {
+  <div class="drawer-overlay" (click)="closeDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <h5>{{ editForm.firstName }} {{ editForm.lastName }}</h5>
+        <span class="drawer-stage-badge"
+              [style.background]="selectedLead?.stageColor + '20'"
+              [style.color]="selectedLead?.stageColor">
+          {{ selectedLead?.stageName }}
+        </span>
+      </div>
+      <button class="drawer-close" (click)="closeDrawer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="drawer-tab" [class.active]="drawerTab === 'data'" (click)="drawerTab = 'data'">Datos</button>
+      <button class="drawer-tab" [class.active]="drawerTab === 'history'" (click)="openHistoryTab()">Historial</button>
+      <button class="drawer-tab" [class.active]="drawerTab === 'activities'" (click)="openActivitiesTab()">Actividades</button>
+    </div>
+
+    <div class="drawer-body">
+      @if (drawerTab === 'data') {
+      <div class="form-row">
+        <div class="field-group">
+          <label>Nombre</label>
+          <input class="form-control" [(ngModel)]="editForm.firstName" name="eFirstName" />
+        </div>
+        <div class="field-group">
+          <label>Apellido</label>
+          <input class="form-control" [(ngModel)]="editForm.lastName" name="eLastName" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Email</label>
+        <input class="form-control" type="email" [(ngModel)]="editForm.email" name="eEmail" />
+      </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Teléfono</label>
+          <input class="form-control" [(ngModel)]="editForm.phone" name="ePhone" placeholder="+51 999 999 999" />
+        </div>
+        <div class="field-group">
+          <label>Fuente</label>
+          <select class="form-select" [(ngModel)]="editForm.source" name="eSource">
+            <option value="">Sin fuente</option>
+            @for (src of sources; track src.sourceId) {
+              <option [value]="src.name">{{ src.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label>Etapa del funnel</label>
+          <select class="form-select" [(ngModel)]="editForm.funnelStageId" name="eStage">
+            @for (stage of stages; track stage.stageId) {
+              <option [value]="stage.stageId">{{ stage.position }}. {{ stage.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Asignado a</label>
+          <select class="form-select" [(ngModel)]="editForm.assignedTo" name="eAssigned">
+            <option value="">Sin asignar</option>
+            @for (v of vendors; track v.userId) {
+              <option [value]="v.userId">{{ v.firstName }} {{ v.lastName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Notas</label>
+        <textarea class="form-control" [(ngModel)]="editForm.notes" name="eNotes" rows="3"
+                  placeholder="Observaciones sobre este lead..."></textarea>
+      </div>
+
+      <div class="drawer-meta">
+        <span>Creado {{ selectedLead?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        @if (selectedLead?.updatedAt) {
+          <span>Actualizado {{ selectedLead?.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        }
+      </div>
+      } @else {
+        @if (loadingHistory) {
+          <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
+        } @else if (history.length === 0) {
+          <div class="history-empty">Sin movimientos registrados</div>
+        } @else {
+          <div class="history-timeline">
+            @for (h of history; track h.id) {
+              <div class="history-item">
+                <div class="history-dot" [style.background]="h.toStageColor || '#6B7280'"></div>
+                <div class="history-content">
+                  <div class="history-move">
+                    @if (h.fromStageName) {
+                      <span class="history-stage from" [style.color]="h.fromStageColor">{{ h.fromStageName }}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    } @else {
+                      <span class="history-created">Creado en</span>
+                    }
+                    <span class="history-stage to" [style.color]="h.toStageColor">{{ h.toStageName }}</span>
+                  </div>
+                  <div class="history-meta">
+                    {{ h.changedAt | date:'dd/MM/yyyy HH:mm' }}
+                    @if (h.changedByName) { · {{ h.changedByName }} }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        } @else if (drawerTab === 'activities') {
+          <div class="activities-header">
+            <span class="activities-count">{{ activities.length }} actividad{{ activities.length !== 1 ? 'es' : '' }}</span>
+            <button class="btn-add-activity" (click)="openActivityForm()">+ Agregar</button>
+          </div>
+
+          @if (showActivityForm) {
+            <div class="activity-form">
+              <div class="form-row">
+                <div class="field-group">
+                  <label>Tipo</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="activityForm.eventType">
+                    <option value="CALL">Llamada</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="MEETING">Reunión</option>
+                    <option value="NOTE">Nota</option>
+                    <option value="TASK">Tarea</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Estado</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="activityForm.status">
+                    <option value="PENDING">Pendiente</option>
+                    <option value="DONE">Hecho</option>
+                    <option value="CANCELLED">Cancelado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Título *</label>
+                <input class="form-control form-control-sm" [(ngModel)]="activityForm.title" placeholder="Ej: Llamada de seguimiento" />
+              </div>
+              <div class="field-group">
+                <label>Fecha</label>
+                <input class="form-control form-control-sm" type="datetime-local" [(ngModel)]="activityForm.eventDate" />
+              </div>
+              <div class="field-group">
+                <label>Descripción</label>
+                <textarea class="form-control form-control-sm" [(ngModel)]="activityForm.description" rows="2" placeholder="Detalles..."></textarea>
+              </div>
+              <div class="activity-form-footer">
+                <button class="btn btn-sm btn-secondary" (click)="closeActivityForm()">Cancelar</button>
+                <button class="btn btn-sm btn-primary" (click)="saveActivity()" [disabled]="savingActivity">
+                  @if (savingActivity) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                  {{ editingActivityId ? 'Actualizar' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (loadingActivities) {
+            <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
+          } @else if (activities.length === 0 && !showActivityForm) {
+            <div class="history-empty">Sin actividades registradas</div>
+          } @else {
+            <div class="activity-list">
+              @for (a of activities; track a.eventId) {
+                <div class="activity-item" [class.done]="a.status === 'DONE'" [class.cancelled]="a.status === 'CANCELLED'">
+                  <div class="activity-icon" [class]="'type-' + a.eventType.toLowerCase()">
+                    @switch (a.eventType) {
+                      @case ('CALL')    { <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> }
+                      @case ('EMAIL')   { <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> }
+                      @case ('MEETING') { <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
+                      @case ('TASK')    { <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> }
+                      @default          { <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+                    }
+                  </div>
+                  <div class="activity-body">
+                    <div class="activity-title">{{ a.title }}</div>
+                    @if (a.description) { <div class="activity-desc">{{ a.description }}</div> }
+                    <div class="activity-meta">
+                      @if (a.eventDate) { {{ a.eventDate | date:'dd/MM/yyyy HH:mm' }} · }
+                      <span class="activity-status-badge status-{{ a.status.toLowerCase() }}">{{ a.status === 'PENDING' ? 'Pendiente' : a.status === 'DONE' ? 'Hecho' : 'Cancelado' }}</span>
+                    </div>
+                  </div>
+                  <div class="activity-actions">
+                    <button class="act-btn" (click)="openActivityForm(a)" title="Editar">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="act-btn danger" (click)="deleteActivity(a.eventId)" title="Eliminar">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+      }
+
+
+    <div class="drawer-footer">
+      <button class="btn-danger-outline" (click)="deleteDrawer()" [disabled]="editDeleting || editSaving">
+        @if (editDeleting) { <span class="spinner-border spinner-border-sm me-1"></span> }
+        Eliminar
+      </button>
+      <div class="drawer-footer-right">
+        <button class="btn btn-secondary" (click)="closeDrawer()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveDrawer()" [disabled]="editSaving || editDeleting">
+          @if (editSaving) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}

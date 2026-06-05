@@ -1,0 +1,54 @@
+<div class="login-wrapper">
+  <div class="login-left">
+    <div class="login-brand">
+      <img src="/assets/logo-bec.png" alt="BEC" class="brand-logo" />
+      <p class="brand-tagline">CRM · Gestión de Leads</p>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>Bienvenido</h1>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        @if (error) {
+          <div class="alert alert-danger">{{ error }}</div>
+        }
+
+        <div class="field-group">
+          <label>Email</label>
+          <input
+            type="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="admin&#64;escuelabec.com"
+            required
+            autocomplete="email" />
+        </div>
+
+        <div class="field-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password" />
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          Ingresar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

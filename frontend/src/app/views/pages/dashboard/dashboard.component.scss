@@ -1,0 +1,145 @@
+.dashboard {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    h1 { font-size: 1.75rem; font-weight: 700; margin: 0; color: #212529; }
+  }
+}
+
+.month-filter {
+  select { min-width: 150px; }
+}
+
+// ── KPI Cards ─────────────────────────────────────────────────────
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-body { flex: 1; }
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.kpi-sub { font-size: 0.75rem; color: #9CA3AF; margin-top: 0.2rem; }
+
+.kpi-trend {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-weight: 600;
+  &.up   { color: #27AE60; }
+  &.down { color: #E74C3C; }
+}
+
+// ── Charts ────────────────────────────────────────────────────────
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.chart-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.chart-title { font-weight: 700; font-size: 0.95rem; color: #111827; }
+.chart-sub   { font-size: 0.8rem; color: #9CA3AF; }
+
+// ── Funnel ────────────────────────────────────────────────────────
+.section-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.section-title { font-weight: 700; font-size: 0.95rem; color: #111827; }
+.section-sub   { font-size: 0.8rem; color: #9CA3AF; }
+
+.funnel-row {
+  display: grid;
+  grid-template-columns: 10px 180px 1fr 48px 48px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #F9FAFB;
+  &:last-child { border-bottom: none; }
+}
+
+.funnel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.funnel-name { font-size: 0.85rem; font-weight: 500; color: #374151; }
+
+.funnel-bar-wrap {
+  height: 8px;
+  background: #F3F4F6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.funnel-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.funnel-count { font-weight: 700; font-size: 0.875rem; text-align: right; }
+.funnel-pct   { font-size: 0.75rem; color: #9CA3AF; text-align: right; }

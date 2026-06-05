@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # ════════════════════════════════════════════════════════════════
+  # MySQL 8.0 - Base de Datos
+  # ════════════════════════════════════════════════════════════════
+  mysql:
+    image: mysql:8.0
+    container_name: crm-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: crm_escuelabec
+      MYSQL_USER: crm_user
+      MYSQL_PASSWORD: crm_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/sql/01-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/sql/02-master-data.sql:/docker-entrypoint-initdb.d/02-master-data.sql:ro
+    networks:
+      - crm-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456789"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ════════════════════════════════════════════════════════════════
+  # Spring Boot API - Backend
+  # ════════════════════════════════════════════════════════════════
+  backend:
+    build:
+      context: ./backend/crm-api
+      dockerfile: Dockerfile
+    container_name: crm-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/crm_escuelabec?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true
+      SPRING_DATASOURCE_USERNAME: crm_user
+      SPRING_DATASOURCE_PASSWORD: crm_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SERVER_PORT: 8080
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8085:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - crm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ════════════════════════════════════════════════════════════════
+  # Angular Frontend - Dev Server
+  # ════════════════════════════════════════════════════════════════
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: crm-frontend
+    ports:
+      - "4500:4200"
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/angular.json:/app/angular.json:ro
+      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+      - ./frontend/package.json:/app/package.json:ro
+    networks:
+      - crm-network
+    depends_on:
+      - backend
+
+
+networks:
+  crm-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
