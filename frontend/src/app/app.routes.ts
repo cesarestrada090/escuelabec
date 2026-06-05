@@ -33,6 +33,7 @@ export const routes: Routes = [
         loadComponent: () => import('./views/pages/events/events.component').then(m => m.EventsComponent)
       },
       {
+        path: 'lead-sources',
         loadComponent: () => import('./views/pages/lead-sources/lead-sources.component').then(m => m.LeadSourcesComponent)
       },
       {
