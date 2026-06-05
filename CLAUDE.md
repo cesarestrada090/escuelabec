@@ -174,6 +174,22 @@ throw new BusinessException(ErrorCode.VALIDATION_ERROR);
 
 ---
 
+## 🌐 URLS RAILWAY (PRODUCCIÓN)
+
+- **Frontend:** https://frontend-production-70d0.up.railway.app
+- **Backend API:** https://escuelabec-production.up.railway.app/api
+- **Health check:** https://escuelabec-production.up.railway.app/api/health
+- **Repo GitHub:** https://github.com/cesarestrada090/escuelabec
+- **MySQL Railway:** acela.proxy.rlwy.net:43692 (DB: railway, user: root)
+- **MySQL Railway password:** GewcvmkozdwGCHKWcLJriJwpOglnsdIf
+
+### Variables Railway importantes
+- Backend: `CORS_ALLOWED_ORIGINS=https://frontend-production-70d0.up.railway.app`
+- Frontend: `PORT=8081`
+- Backend: `SPRING_DATASOURCE_URL=jdbc:mysql://${{MySQL.RAILWAY_PRIVATE_DOMAIN}}:3306/crm_escuelabec`
+
+---
+
 ## 🚀 DEPLOY LOCAL
 
 ```bash
