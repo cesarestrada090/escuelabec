@@ -245,7 +245,7 @@
           <span>Actualizado {{ selectedLead?.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
         }
       </div>
-      } @else {
+      } @else if (drawerTab === 'history') {
         @if (loadingHistory) {
           <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
         } @else if (history.length === 0) {
@@ -274,7 +274,7 @@
             }
           </div>
         }
-        } @else if (drawerTab === 'activities') {
+      } @else if (drawerTab === 'activities') {
           <div class="activities-header">
             <span class="activities-count">{{ activities.length }} actividad{{ activities.length !== 1 ? 'es' : '' }}</span>
             <button class="btn-add-activity" (click)="openActivityForm()">+ Agregar</button>
@@ -362,7 +362,7 @@
             </div>
           }
       }
-
+    </div>
 
     <div class="drawer-footer">
       <button class="btn-danger-outline" (click)="deleteDrawer()" [disabled]="editDeleting || editSaving">
