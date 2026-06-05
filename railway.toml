@@ -1,0 +1,6 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "cd backend/crm-api && ./mvnw clean package -DskipTests"
+
+[deploy]
+startCommand = "java -Dserver.port=$PORT $JAVA_OPTS -jar backend/crm-api/target/*.jar"
